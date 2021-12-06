@@ -78,7 +78,58 @@ disp = labeloverlay(I_blue, L);
 
 zones = max(unique(L)); % 13 distinct regions with threshold1
 
-%%
+% Crop the cells from the image:
+
+cells_blue = cell(zones, 1) ;
+coord = zeros(2,2,zones) ;
+
+for z=1:zones 
+    display(z) 
+    [r1, c1] = find(L==z);
+    %coord(:, :, z) = [min(r1) max(r1) ; min(c1) max(c1)];
+    burden = zeros(max(r1)-min(r1)+1, max(c1)-min(c1)+1);
+    for i=min(r1):max(r1)
+        for j=min(c1):max(c1)
+            if L(i,j) == z && I_blue_threshold1(i,j)==2^16-1
+                burden(i-min(r1)+1,j-min(c1)+1) = 1;
+            else 
+                burden(i-min(r1)+1,j-min(c1)+1) = 0;
+            end
+        end
+    end
+    burden = logical(burden);
+    [r2, c2] = find(burden==1);
+    % attention au changement de base / d'indice avec la matrice burden (+min(r1)-1 ; +min(c1)-1) :
+    coord(:, :, z) = [min(r2)+min(r1)-1 max(r2)+min(r1)-1 ; min(c2)+min(c1)-1 max(c2)+min(c1)-1];
+    burden = burden(min(r2):max(r2), min(c2):max(c2)) ;
+    cells_blue{z} = burden ;
+    clear r1 r2 c1 c2 ;
+end
+
+% Plot the cells from blue image
+grid = double(4);
+q = double(mod(zones, grid));
+if q > 0
+    figure;
+    p = double(zones-q);
+    for plotId=1:p
+        subplot(grid, p/grid, plotId) ;
+        imshow(cells_blue{plotId}) ;
+    end
+    figure;
+    for plotId=1:q
+        subplot(1, q, plotId) ;
+        imshow(cells_blue{zones-plotId+1}) ;
+    end
+else
+    figure;
+    for plotId=1:zones
+        subplot(grid, grid, plotId) ;
+        imshow(cells_blue{plotId}) ;
+    end
+end
+
+%% 
 I_green = imread("Chromosomes-green.tif") ;
 % figure ; imshow(I_green) ;
 % imhist(I_green)
@@ -98,50 +149,40 @@ I_green_threshold = I_green;
 I_green_threshold(I_green_threshold > 15000) = 2^16 ;
 I_green_threshold(I_green_threshold <= 15000) = 0 ;
 
-% figure ; imshow(logical(I_green_threshold))
+% figure ; 
+% subplot(1,3,1); imshow(logical(I_blue_threshold1));
+% subplot(1,3,2); imshow(logical(I_green_threshold));
+% subplot(1,3,3); imshow(I_blue);
 
-cells = cell(zones, 1) ;
-coord = zeros(2,2,zones) ;
-
-for z=1:zones 
-    [r, c] = find(L==z);
-    burden = zeros(max(r)-min(r)+1, max(c)-min(c)+1);
-    for i=min(r):max(r)
-        for j=min(c):max(c)
-            if L(i,j) == z && I_blue_threshold1(i,j)==2^16-1
-                burden(i-min(r)+1,j-min(c)+1) = 1;
-            else 
-                burden(i-min(r)+1,j-min(c)+1) = 0;
-            end
-        end
-    end
-    burden = logical(burden);
-    [r, c] = find(burden==1);
-    coord(:, :, z) = [min(r) max(r) ; min(c) max(c)];
-    burden = burden(min(r):max(r), min(c):max(c)) ;
-    cells{z} = burden ;
+cells_green = cell(zones, 1);
+for z=1:size(coord,3)
+    xmin = coord(1,1,z);
+    xmax = coord(1,2,z);
+    ymin = coord(2,1,z);
+    ymax = coord(2,2,z);
+    cells_green{z} = I_green_threshold(xmin:xmax, ymin:ymax);
+    clear xmin xmax ymin ymax
 end
 
-% Plot the cells
-figure;
+% Plot the cells from blue image
 grid = double(4);
 q = double(mod(zones, grid));
 if q > 0
+    figure;
     p = double(zones-q);
     for plotId=1:p
         subplot(grid, p/grid, plotId) ;
-        imshow(cells{plotId}) ;
+        imshow(cells_green{plotId}) ;
     end
     figure;
     for plotId=1:q
         subplot(1, q, plotId) ;
-        imshow(cells{zones-plotId+1}) ;
+        imshow(cells_green{zones-plotId+1}) ;
     end
 else
+    figure;
     for plotId=1:zones
         subplot(grid, grid, plotId) ;
-        imshow(cells{plotId}) ;
+        imshow(cells_green{plotId}) ;
     end
 end
-
-
