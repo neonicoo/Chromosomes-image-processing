@@ -134,33 +134,13 @@ I_green = imread("Chromosomes-green.tif") ;
 % figure ; imshow(I_green) ;
 % imhist(I_green)
 
-% Method 1 : Otsu 
-
-[T,EM] = graythresh(I_green);
-Iotsu = I_green; 
-Iotsu(Iotsu>T*(2^16 -1)) = 2^16 -1;
-Iotsu(Iotsu<=T*(2^16 -1)) = 0;
-Iotsu_green = logical(Iotsu);
-
-%figure ; imshow(logical(Iotsu_green));
-
-% Method 2 : manual threshold
-I_green_threshold = I_green;
-I_green_threshold(I_green_threshold > 15000) = 2^16 ;
-I_green_threshold(I_green_threshold <= 15000) = 0 ;
-
-% figure ; 
-% subplot(1,3,1); imshow(logical(I_blue_threshold1));
-% subplot(1,3,2); imshow(logical(I_green_threshold));
-% subplot(1,3,3); imshow(I_blue);
-
 cells_green = cell(zones, 1);
 for z=1:size(coord,3)
     xmin = coord(1,1,z);
     xmax = coord(1,2,z);
     ymin = coord(2,1,z);
     ymax = coord(2,2,z);
-    cells_green{z} = I_green_threshold(xmin:xmax, ymin:ymax);
+    cells_green{z} = I_blue(xmin:xmax, ymin:ymax);
     clear xmin xmax ymin ymax
 end
 
