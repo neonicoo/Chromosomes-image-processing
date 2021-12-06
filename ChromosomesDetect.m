@@ -100,4 +100,32 @@ I_green_threshold(I_green_threshold <= 15000) = 0 ;
 
 % figure ; imshow(logical(I_green_threshold))
 
+% Carré / crop autour de la cellule dans la région du watershep ; xmin/max
+% ymin/max 
 
+% coord_cells = zeros(2, 2);
+% for z=1:zones
+%    
+%     coord_cells(:,:,z) = zeros(2, 2);
+%     L_temp = L;
+%     L_temp(L_temp ~= 5) = 0;
+%     L_temp(L_temp == 5) = 2^8-1;
+%     L_temp = logical(L_temp);
+%     w_L_temp = find(L_temp);
+%     w_coords_L_temp = [];
+%     for t = 1:size(w_L_temp)
+%         w_coords_L_temp = [w_coords_L_temp [floor(t/(size(w_coords_L_temp, 1)+1)) t+1-size(w_coords_L_temp, 1)*floor(t/(size(w_coords_L_temp, 1)+1))]];
+%     end
+%     break
+%     %w_coords = (L_temp == 1 && logical(I_blue_threshold1) == 1);
+%  
+% %     for i=1:size(L_temp, 1)
+% %         for j=1:size(L_temp, 2)
+% %             if L_temp(i,j) == 1 && I_blue_threshol1 == 1
+% %                 index_x = [index_x i];
+% %                 index_y = [index_y j];
+% %             end
+% %         end
+% %     end
+% 
+% end
