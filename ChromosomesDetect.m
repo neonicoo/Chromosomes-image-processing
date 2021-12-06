@@ -30,13 +30,13 @@ I_blue_threshold2(I_blue_threshold2 <= 5000) = 0 ;
 F = fftshift(fft2(I_blue));
 Fb = F ;
 
-c = 100 ;
+cote = 100 ;
 x = size(F, 1) /2;
 y = size(F, 2) /2;
 
 for i = 1:size(F, 1)
     for j= 1:size(F, 2)
-        if i > x+c || i < x-c || j > y+c || j< y-c
+        if i > x+cote || i < x-cote || j > y+cote || j< y-cote
             Fb(i,j) = 0;
         end
     end
@@ -100,32 +100,45 @@ I_green_threshold(I_green_threshold <= 15000) = 0 ;
 
 % figure ; imshow(logical(I_green_threshold))
 
-% Carré / crop autour de la cellule dans la région du watershep ; xmin/max
-% ymin/max 
+cells = cell(zones, 1) ;
+for z=1:zones 
+    [r, c] = find(L==z);
+    burden = zeros(max(r)-min(r)+1, max(c)-min(c)+1);
+    for i=min(r):max(r)
+        for j=min(c):max(c)
+            if L(i,j) == z && I_blue_threshold1(i,j)==2^16-1
+                burden(i-min(r)+1,j-min(c)+1) = 1;
+            else 
+                burden(i-min(r)+1,j-min(c)+1) = 0;
+            end
+        end
+    end
+    burden = logical(burden);
+    [r, c] = find(burden==1);
+    burden = burden(min(r):max(r), min(c):max(c)) ;
+    cells{z} = burden ;
+end
 
-% coord_cells = zeros(2, 2);
-% for z=1:zones
-%    
-%     coord_cells(:,:,z) = zeros(2, 2);
-%     L_temp = L;
-%     L_temp(L_temp ~= 5) = 0;
-%     L_temp(L_temp == 5) = 2^8-1;
-%     L_temp = logical(L_temp);
-%     w_L_temp = find(L_temp);
-%     w_coords_L_temp = [];
-%     for t = 1:size(w_L_temp)
-%         w_coords_L_temp = [w_coords_L_temp [floor(t/(size(w_coords_L_temp, 1)+1)) t+1-size(w_coords_L_temp, 1)*floor(t/(size(w_coords_L_temp, 1)+1))]];
-%     end
-%     break
-%     %w_coords = (L_temp == 1 && logical(I_blue_threshold1) == 1);
-%  
-% %     for i=1:size(L_temp, 1)
-% %         for j=1:size(L_temp, 2)
-% %             if L_temp(i,j) == 1 && I_blue_threshol1 == 1
-% %                 index_x = [index_x i];
-% %                 index_y = [index_y j];
-% %             end
-% %         end
-% %     end
-% 
-% end
+% Plot the cells
+figure;
+grid = double(4);
+q = double(mod(zones, grid));
+if q > 0
+    p = double(zones-q);
+    for plotId=1:p
+        subplot(grid, p/grid, plotId) ;
+        imshow(cells{plotId}) ;
+    end
+    figure;
+    for plotId=1:q
+        subplot(1, q, plotId) ;
+        imshow(cells{zones-plotId+1}) ;
+    end
+else
+    for plotId=1:zones
+        subplot(grid, grid, plotId) ;
+        imshow(cells{plotId}) ;
+    end
+end
+
+
