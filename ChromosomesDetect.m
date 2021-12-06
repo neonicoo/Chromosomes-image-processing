@@ -105,7 +105,6 @@ coord = zeros(2,2,zones) ;
 
 for z=1:zones 
     [r, c] = find(L==z);
-    coord(:, :, z) = [min(r) max(r) ; min(c) max(c)];
     burden = zeros(max(r)-min(r)+1, max(c)-min(c)+1);
     for i=min(r):max(r)
         for j=min(c):max(c)
@@ -118,6 +117,7 @@ for z=1:zones
     end
     burden = logical(burden);
     [r, c] = find(burden==1);
+    coord(:, :, z) = [min(r) max(r) ; min(c) max(c)];
     burden = burden(min(r):max(r), min(c):max(c)) ;
     cells{z} = burden ;
 end
