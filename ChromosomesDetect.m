@@ -1,7 +1,7 @@
 I_blue = imread("Chromosomes-blue.tif") ;
 
 % figure ;
-% subplot(1,2,1); imshow(I_green);
+% subplot(1,2,1); imshow(I_blue);
 
 % Threshold : method 1 with histogram equalization + median filter + manual threshold:
 
@@ -67,7 +67,7 @@ Iotsu_blue = logical(Iotsu);
 % subplot(1,3,3); imshow(logical(Iotsu_blue));
 
 
-% Watershed : detect cells postions 
+% Watershed : detect cells positions 
 map = bwdist(I_blue_threshold1);
 L = watershed(map);
 disp = labeloverlay(I_blue, L);
@@ -105,28 +105,28 @@ for z=1:zones
     clear r1 r2 c1 c2 ;
 end
 
-% Plot the cells from blue image
-grid = double(4);
-q = double(mod(zones, grid));
-if q > 0
-    figure;
-    p = double(zones-q);
-    for plotId=1:p
-        subplot(grid, p/grid, plotId) ;
-        imshow(cells_blue{plotId}) ;
-    end
-    figure;
-    for plotId=1:q
-        subplot(1, q, plotId) ;
-        imshow(cells_blue{zones-plotId+1}) ;
-    end
-else
-    figure;
-    for plotId=1:zones
-        subplot(grid, grid, plotId) ;
-        imshow(cells_blue{plotId}) ;
-    end
-end
+% % Plot the cells from blue image
+% grid = double(4);
+% q = double(mod(zones, grid));
+% if q > 0
+%     figure;
+%     p = double(zones-q);
+%     for plotId=1:p
+%         subplot(grid, p/grid, plotId) ;
+%         imshow(cells_blue{plotId}) ;
+%     end
+%     figure;
+%     for plotId=1:q
+%         subplot(1, q, plotId) ;
+%         imshow(cells_blue{zones-plotId+1}) ;
+%     end
+% else
+%     figure;
+%     for plotId=1:zones
+%         subplot(grid, grid, plotId) ;
+%         imshow(cells_blue{plotId}) ;
+%     end
+% end
 
 %% 
 I_green = imread("Chromosomes-green.tif") ;
@@ -143,25 +143,26 @@ for z=1:size(coord,3)
     clear xmin xmax ymin ymax
 end
 
-% Plot the cells from blue image
-grid = double(4);
-q = double(mod(zones, grid));
-if q > 0
-    figure;
-    p = double(zones-q);
-    for plotId=1:p
-        subplot(grid, p/grid, plotId) ;
-        imshow(cells_green{plotId}) ;
-    end
-    figure;
-    for plotId=1:q
-        subplot(1, q, plotId) ;
-        imshow(cells_green{zones-plotId+1}) ;
-    end
-else
-    figure;
-    for plotId=1:zones
-        subplot(grid, grid, plotId) ;
-        imshow(cells_green{plotId}) ;
-    end
-end
+% % Plot the cells from green image
+% grid = double(4);
+% q = double(mod(zones, grid));
+% if q > 0
+%     figure;
+%     p = double(zones-q);
+%     for plotId=1:p
+%         subplot(grid, p/grid, plotId) ;
+%         imshow(cells_green{plotId}) ;
+%     end
+%     figure;
+%     for plotId=1:q
+%         subplot(1, q, plotId) ;
+%         imshow(cells_green{zones-plotId+1}) ;
+%     end
+% else
+%     figure;
+%     for plotId=1:zones
+%         subplot(grid, grid, plotId) ;
+%         imshow(cells_green{plotId}) ;
+%     end
+% end
+
