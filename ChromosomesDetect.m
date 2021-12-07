@@ -86,23 +86,22 @@ coord = zeros(2,2,zones) ;
 for z=1:zones 
     display(z) 
     [r1, c1] = find(L==z);
-    %coord(:, :, z) = [min(r1) max(r1) ; min(c1) max(c1)];
-    burden = zeros(max(r1)-min(r1)+1, max(c1)-min(c1)+1);
+    wsregion = zeros(max(r1)-min(r1)+1, max(c1)-min(c1)+1);
     for i=min(r1):max(r1)
         for j=min(c1):max(c1)
             if L(i,j) == z && I_blue_threshold1(i,j)==2^16-1
-                burden(i-min(r1)+1,j-min(c1)+1) = 1;
+                wsregion(i-min(r1)+1,j-min(c1)+1) = 1;
             else 
-                burden(i-min(r1)+1,j-min(c1)+1) = 0;
+                wsregion(i-min(r1)+1,j-min(c1)+1) = 0;
             end
         end
     end
-    burden = logical(burden);
-    [r2, c2] = find(burden==1);
-    % attention au changement de base / d'indice avec la matrice burden (+min(r1)-1 ; +min(c1)-1) :
+    wsregion = logical(wsregion);
+    [r2, c2] = find(wsregion==1);
+    % attention au changement de base / d'indice avec la matrice wsregion (+min(r1)-1 ; +min(c1)-1) :
     coord(:, :, z) = [min(r2)+min(r1)-1 max(r2)+min(r1)-1 ; min(c2)+min(c1)-1 max(c2)+min(c1)-1];
-    burden = burden(min(r2):max(r2), min(c2):max(c2)) ;
-    cells_blue{z} = burden ;
+    wsregion = wsregion(min(r2):max(r2), min(c2):max(c2)) ;
+    cells_blue{z} = wsregion ;
     clear r1 r2 c1 c2 ;
 end
 
@@ -140,7 +139,7 @@ for z=1:size(coord,3)
     xmax = coord(1,2,z);
     ymin = coord(2,1,z);
     ymax = coord(2,2,z);
-    cells_green{z} = I_blue(xmin:xmax, ymin:ymax);
+    cells_green{z} = I_green(xmin:xmax, ymin:ymax);
     clear xmin xmax ymin ymax
 end
 
