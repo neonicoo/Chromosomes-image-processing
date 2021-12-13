@@ -1,9 +1,6 @@
+%% threshold
 I_blue = imread("Chromosomes-blue.tif") ;
-
-% figure ;
-% subplot(1,2,1); imshow(I_blue);
-
-% Threshold : method 1 with histogram equalization + median filter + manual threshold:
+% Method 1 with histogram equalization + median filter + manual threshold:
 
 I_blue_eq = histeq(I_blue);
 I_blue_eq_med = medfilt2(I_blue_eq, [30 30]);
@@ -18,7 +15,7 @@ I_blue_threshold1 = I_blue_eq_med ;
 I_blue_threshold1(I_blue_threshold1 > 6.2*10^4) = 2^16 ;
 I_blue_threshold1(I_blue_threshold1 <= 6.2*10^4) = 0 ;
 
-% Threshold : method 2 only manual threshold :
+% Method 2 only manual threshold :
 
 % imhist(I_blue);
 I_blue_threshold2 = I_blue;
@@ -26,59 +23,32 @@ I_blue_threshold2(I_blue_threshold2 > 5000) = 2^16 ;
 I_blue_threshold2(I_blue_threshold2 <= 5000) = 0 ;
  
 
-% Threshold : method 3 FFT :
-F = fftshift(fft2(I_blue));
-Fb = F ;
-
-cote = 100 ;
-x = size(F, 1) /2;
-y = size(F, 2) /2;
-
-for i = 1:size(F, 1)
-    for j= 1:size(F, 2)
-        if i > x+cote || i < x-cote || j > y+cote || j< y-cote
-            Fb(i,j) = 0;
-        end
-    end
-end
-
-% Fb(x-c:x+c, y-c:y+c) = 0; high filter pass
-rI = ifft2(ifftshift(Fb));
-
-% figure ;
-% subplot(2,2,1); imagesc(log(1+abs(F)));
-% subplot(2,2,2); imagesc(log(1+abs(Fb)));
-% subplot(2,2,3); imshow(I_blue);
-% subplot(2,2,4); imshow(uint16(real(rI)));
-
-% Threshold : method 4 Otsu :
-
+% Method 3 Otsu :
 [T,EM] = graythresh(I_blue_eq_med);
 Iotsu = I_blue_eq_med; 
 Iotsu(Iotsu>T*(2^16 -1)) = 2^16 -1;
 Iotsu(Iotsu<=T*(2^16 -1)) = 0;
 Iotsu_blue = logical(Iotsu);
 
-% Comparisons :
+%%  Methods comparison :
+figure ;
+subplot(1,3,1); imshow(logical(I_blue_threshold1));
+subplot(1,3,2); imshow(logical(I_blue_threshold2));
+subplot(1,3,3); imshow(logical(Iotsu_blue));
 
-% figure ;
-% subplot(1,3,1); imshow(logical(I_blue_threshold1));
-% subplot(1,3,2); imshow(logical(I_blue_threshold2));
-% subplot(1,3,3); imshow(logical(Iotsu_blue));
 
-
-% Watershed : detect cells positions 
+%%  Watershed : detect cells regions
 map = bwdist(I_blue_threshold1);
 L = watershed(map);
 disp = labeloverlay(I_blue, L);
+zones = max(unique(L)); % 13 distinct regions with threshold1
 
 % figure ;
 % subplot(1,2,1); imshow(logical(I_blue_threshold1));
 % subplot(1,2,2); imshow(disp);
 
-zones = max(unique(L)); % 13 distinct regions with threshold1
 
-% Crop the cells from the image:
+%% Crop the cells from the image :
 
 cells_blue = cell(zones, 1) ;
 coord = zeros(2,2,zones) ;
@@ -128,7 +98,8 @@ end
 %     end
 % end
 
-%% 
+%% Crop the same region on the green image as in the blue image :
+
 I_green = imread("Chromosomes-green.tif") ;
 % figure ; imshow(I_green) ;
 % imhist(I_green)
@@ -166,22 +137,29 @@ end
 %     end
 % end
 
-%%
+%% Isolate the maximums for each cells to detect the amount of chromosomes 
 nb_chromosomes = zeros(1,zones);
 fprintf("--------------\n HISTEQ \n--------------\n")
-for plotId=1:double(zones)
-    
+cells_green_thres = cell(zones, 1);
+
+for z=1:double(zones)
     %seuil main : 
-    maxval = max(max(cells_green{plotId}));
-    im_tr = cells_green{plotId};
-    im_tr(im_tr >= maxval*0.95) = 2^16-1 ;
-    im_tr(im_tr < maxval*0.95) = 0 ;
-    
+    maxval = max(max(cells_green{z}));
+    im_tr = cells_green{z};
+    im_tr(im_tr >= maxval*0.4) = 2^16-1 ;
+    im_tr(im_tr < maxval*0.5) = 0 ;
+    cells_green_thres{z} = im_tr ;
+
     %fait le water shed
     map_cell_by_cell_green = bwdist(im_tr);
     L = watershed(map_cell_by_cell_green);
     disp_cell= labeloverlay(single(im_tr), L);
-    zones_cell = max(unique(L));
+    nb_chromosomes(z) = max(unique(L));
     
-    fprintf("Cellule %d : %d chromosomes.\n", plotId, zones_cell)
+    clear im_tr L map_cell_by_cell_green disp
+    fprintf("Cellule %d : %d chromosomes.\n", z, nb_chromosomes(z))
 end
+
+%%
+
+%% Compute some stats
