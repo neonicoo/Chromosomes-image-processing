@@ -166,3 +166,22 @@ end
 %     end
 % end
 
+%%
+nb_chromosomes = zeros(1,zones);
+fprintf("--------------\n HISTEQ \n--------------\n")
+for plotId=1:double(zones)
+    
+    %seuil main : 
+    maxval = max(max(cells_green{plotId}));
+    im_tr = cells_green{plotId};
+    im_tr(im_tr >= maxval*0.95) = 2^16-1 ;
+    im_tr(im_tr < maxval*0.95) = 0 ;
+    
+    %fait le water shed
+    map_cell_by_cell_green = bwdist(im_tr);
+    L = watershed(map_cell_by_cell_green);
+    disp_cell= labeloverlay(single(im_tr), L);
+    zones_cell = max(unique(L));
+    
+    fprintf("Cellule %d : %d chromosomes.\n", plotId, zones_cell)
+end
