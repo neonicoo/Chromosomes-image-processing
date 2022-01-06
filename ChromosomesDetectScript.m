@@ -156,6 +156,13 @@ for z=1:double(zones)
     disp_cell= labeloverlay(single(im_tr), L);
     nb_chromosomes(z) = max(unique(L));
     
+    % DECOMMMENTER POUR VOIR AFFICHAGE CELLULE PAR CELLULE : 
+    % % Affichage des cellules :
+    % figure;   
+    % subplot(1,3,1); imshow((cells_green{z}));
+    % subplot(1,3,2); imshow(logical(cells_green_thres{z}));
+    % subplot(1,3,3); imshow(disp_cell);
+    
     clear im_tr L map_cell_by_cell_green disp
     fprintf("Cellule %d : %d chromosomes.\n", z, nb_chromosomes(z))
 end
